@@ -1,4 +1,4 @@
-package fr.enssat.sharemybook.edkfetinc
+package fr.enssat.sharemybook.edkfet_inc
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4

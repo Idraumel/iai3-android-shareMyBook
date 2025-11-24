@@ -1,4 +1,4 @@
-package fr.enssat.sharemybook.edkfetinc.ui.theme
+package fr.enssat.sharemybook.edkfet_inc.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

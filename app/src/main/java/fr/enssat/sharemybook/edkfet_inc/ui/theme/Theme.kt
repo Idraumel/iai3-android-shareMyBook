@@ -1,4 +1,4 @@
-package fr.enssat.sharemybook.edkfetinc.ui.theme
+package fr.enssat.sharemybook.edkfet_inc.ui.theme
 
 import android.app.Activity
 import android.os.Build

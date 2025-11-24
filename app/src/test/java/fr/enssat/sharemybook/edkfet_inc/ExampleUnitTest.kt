@@ -1,4 +1,4 @@
-package fr.enssat.sharemybook.edkfetinc
+package fr.enssat.sharemybook.edkfet_inc
 
 import org.junit.Test
 

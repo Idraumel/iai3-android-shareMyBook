@@ -1,0 +1,66 @@
+@startuml
+hide circle
+skinparam linetype ortho
+top to bottom direction
+
+title ShareMyBook - MCD
+
+entity "User" as User {
+* uuid : UUID
+  --
+  fullName : String
+  email : String?
+  phone : String?
+  }
+
+entity "Book" as Book {
+* id : Long
+  --
+  ownerUuid : UUID        ' FK -> User.uuid
+  isbn : String
+  title : String
+  authors : String        ' "A1;A2"
+  coverUrl : String?
+  state : BookState       ' AVAILABLE | LENT | BORROWED
+  }
+
+entity "Loan" as Loan {
+* id : Long
+  --
+  shareId : String        ' unique
+  action : LoanAction     ' LOAN | RETURN
+  bookId : Long           ' FK -> Book.id
+  ownerUuid : UUID        ' FK -> User.uuid
+  borrowerUuid : UUID     ' FK -> User.uuid
+  status : LoanStatus     ' INIT | ACCEPTED | COMPLETED | CANCELED
+  createdAt : Instant
+  updatedAt : Instant
+  }
+
+' =================
+' Relations (Card.)
+' =================
+' Un utilisateur possède 0..N livres
+User ||--o{ Book : "own"
+
+' Un livre participe à 0..N prêts (dans le temps)
+Book ||--o{ Loan : "involves"
+
+' Un prêt lie exactement 1 propriétaire et 1 emprunteur
+User ||--o{ Loan : "asOwner"
+User ||--o{ Loan : "asBorrower"
+
+' =========
+' Notes
+' =========
+note right of Book
+state ∈ {AVAILABLE, LENT, BORROWED}
+end note
+
+note right of Loan
+action ∈ {LOAN, RETURN}
+status ∈ {INIT, ACCEPTED, COMPLETED, CANCELED}
+shareId est unique (contrainte d'unicité)
+end note
+
+@enduml
