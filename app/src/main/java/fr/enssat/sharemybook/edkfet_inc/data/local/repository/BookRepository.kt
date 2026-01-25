@@ -11,7 +11,21 @@ class BookRepository(private val bookDao: BookDao) {
 
     val allBooks: Flow<List<Book>> = bookDao.getAllBooks()
 
+    fun getBookById(id: Long): Flow<Book?> = bookDao.getBookById(id)
+
     suspend fun insert(book: Book) {
         bookDao.insert(book)
+    }
+
+    suspend fun update(book: Book) {
+        bookDao.update(book)
+    }
+
+    suspend fun delete(book: Book) {
+        bookDao.delete(book)
+    }
+
+    suspend fun deleteBorrowedBookByIsbn(isbn: String) {
+        bookDao.deleteBorrowedBookByIsbn(isbn)
     }
 }

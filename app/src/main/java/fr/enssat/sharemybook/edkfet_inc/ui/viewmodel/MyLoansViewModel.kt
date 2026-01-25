@@ -3,34 +3,31 @@ package fr.enssat.sharemybook.edkfet_inc.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import fr.enssat.sharemybook.edkfet_inc.data.auth.AuthManager
-import fr.enssat.sharemybook.edkfet_inc.data.local.repository.LoanRepository
-import fr.enssat.sharemybook.edkfet_inc.model.Loan
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.stateIn
+import fr.enssat.sharemybook.edkfet_inc.data.local.repository.BookRepository
+import fr.enssat.sharemybook.edkfet_inc.data.local.repository.UserRepository
+import fr.enssat.sharemybook.edkfet_inc.model.Book
+import fr.enssat.sharemybook.edkfet_inc.model.User
+import kotlinx.coroutines.flow.*
 
 class MyLoansViewModel(
-    private val loanRepository: LoanRepository,
+    private val bookRepository: BookRepository,
+    private val userRepository: UserRepository,
     private val authManager: AuthManager
 ) : ViewModel() {
 
     private val userUuidFlow = authManager.loggedInUserUuid
 
-    val loansAsOwner: StateFlow<List<Loan>> = userUuidFlow.flatMapLatest { uuid ->
-        if (uuid != null) {
-            loanRepository.getLoansAsOwner(uuid)
-        } else {
-            kotlinx.coroutines.flow.flowOf(emptyList())
-        }
+    // Books I own that are currently lent to someone
+    val lentBooks: StateFlow<List<Book>> = combine(bookRepository.allBooks, userUuidFlow) { books, uuid ->
+        books.filter { it.ownerUuid == uuid && it.borrowedByUuid != null }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    val loansAsBorrower: StateFlow<List<Loan>> = userUuidFlow.flatMapLatest { uuid ->
-        if (uuid != null) {
-            loanRepository.getLoansAsBorrower(uuid)
-        } else {
-            kotlinx.coroutines.flow.flowOf(emptyList())
-        }
+    // Books I have borrowed from someone else
+    val borrowedBooks: StateFlow<List<Book>> = combine(bookRepository.allBooks, userUuidFlow) { books, uuid ->
+        books.filter { it.lentByUuid != null }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
-    
+
+    fun getPartnerInfo(partnerUuid: String): Flow<User?> {
+        return userRepository.getUser(partnerUuid)
+    }
 }

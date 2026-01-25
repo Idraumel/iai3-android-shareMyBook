@@ -1,40 +1,19 @@
 package fr.enssat.sharemybook.edkfet_inc.model
 
-import androidx.room.ColumnInfo
 import androidx.room.Entity
-import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
+import java.util.UUID
 
-@Entity(
-    tableName = "books",
-    foreignKeys = [
-        ForeignKey(
-            entity = User::class,
-            parentColumns = ["uuid"],
-            childColumns = ["owner_uuid"],
-            onDelete = ForeignKey.CASCADE
-        )
-    ]
-)
+@Entity(tableName = "books")
 data class Book(
-    @PrimaryKey(autoGenerate = true)
-    val id: Long = 0,
-
-    @ColumnInfo(name = "owner_uuid", index = true)
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val uuid: String = UUID.randomUUID().toString(),
     val ownerUuid: String,
-
-    @ColumnInfo(name = "isbn")
     val isbn: String,
-
-    @ColumnInfo(name = "title")
     val title: String,
-
-    @ColumnInfo(name = "authors")
     val authors: String,
-
-    @ColumnInfo(name = "cover_url")
-    val coverUrl: String?,
-
-    @ColumnInfo(name = "state")
-    val state: BookState = BookState.AVAILABLE
+    val coverUrl: String? = null,
+    val state: BookState = BookState.AVAILABLE,
+    val borrowedByUuid: String? = null,
+    val lentByUuid: String? = null
 )

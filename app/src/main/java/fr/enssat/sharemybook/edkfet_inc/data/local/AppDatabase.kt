@@ -7,24 +7,19 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.sqlite.db.SupportSQLiteDatabase
 import fr.enssat.sharemybook.edkfet_inc.data.local.dao.BookDao
-import fr.enssat.sharemybook.edkfet_inc.data.local.dao.LoanDao
 import fr.enssat.sharemybook.edkfet_inc.data.local.dao.UserDao
-import fr.enssat.sharemybook.edkfet_inc.data.local.repository.BookRepository
-import fr.enssat.sharemybook.edkfet_inc.data.local.repository.UserRepository
 import fr.enssat.sharemybook.edkfet_inc.model.Book
-import fr.enssat.sharemybook.edkfet_inc.model.Loan
 import fr.enssat.sharemybook.edkfet_inc.model.User
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-@Database(entities = [Book::class, User::class, Loan::class], version = 4, exportSchema = false) 
+@Database(entities = [Book::class, User::class], version = 10, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun bookDao(): BookDao
     abstract fun userDao(): UserDao
-    abstract fun loanDao(): LoanDao
 
     companion object {
         @Volatile
@@ -35,36 +30,52 @@ abstract class AppDatabase : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,
-                    "sharemybook_database"
+                    "sharemybook_final.db"
                 )
                 .fallbackToDestructiveMigration()
-                .addCallback(DatabaseCallback())
+                .addCallback(object : RoomDatabase.Callback() {
+                    override fun onCreate(db: SupportSQLiteDatabase) {
+                        super.onCreate(db)
+                        // Seed only on creation
+                        INSTANCE?.let { database ->
+                            CoroutineScope(Dispatchers.IO).launch {
+                                seedData(database)
+                            }
+                        }
+                    }
+                    
+                    override fun onOpen(db: SupportSQLiteDatabase) {
+                        super.onOpen(db)
+                        // Safety check: if DB is empty (after migration), seed it
+                        INSTANCE?.let { database ->
+                            CoroutineScope(Dispatchers.IO).launch {
+                                val users = database.userDao().getAllUsersSync()
+                                if (users.isEmpty()) {
+                                    seedData(database)
+                                }
+                            }
+                        }
+                    }
+                })
                 .build()
                 INSTANCE = instance
                 instance
             }
         }
-    }
 
-    private class DatabaseCallback : RoomDatabase.Callback() {
-        override fun onCreate(db: SupportSQLiteDatabase) {
-            super.onCreate(db)
-            INSTANCE?.let {
-                CoroutineScope(Dispatchers.IO).launch {
-                    val bookRepository = BookRepository(it.bookDao())
-                    val userRepository = UserRepository(it.userDao())
+        private suspend fun seedData(db: AppDatabase) {
+            val user1Uuid = "e41bb15c-4c50-47a8-8974-9e74af81b3cc"
+            val user2Uuid = "ceaf985f-d6ba-4185-8c39-e41a1849fe1e"
 
-                    // Add sample users with passwords
-                    val user1 = User(fullName = "John Doe", email = "john.doe@example.com", phone = "123456789", password = "password123")
-                    val user2 = User(fullName = "Jane Smith", email = "jane.smith@example.com", phone = "987654321", password = "password456")
-                    userRepository.insert(user1)
-                    userRepository.insert(user2)
+            val user1 = User(uuid = user1Uuid, fullName = "John Doe", email = "john.doe@example.com", phone = "+33612345678", password = "password123")
+            val user2 = User(uuid = user2Uuid, fullName = "Jane Smith", email = "jane.smith@example.com", phone = "+33698765432", password = "password456")
+            
+            db.userDao().insert(user1)
+            db.userDao().insert(user2)
 
-                    // Add sample books, owned by different users
-                    bookRepository.insert(Book(ownerUuid = user1.uuid, isbn = "978-0618640157", title = "The Lord of the Rings", authors = "J.R.R. Tolkien", coverUrl = "https://covers.openlibrary.org/b/isbn/9780618640157-L.jpg"))
-                    bookRepository.insert(Book(ownerUuid = user2.uuid, isbn = "978-0132350884", title = "Clean Code: A Handbook of Agile Software Craftsmanship", authors = "Robert C. Martin", coverUrl = "https://covers.openlibrary.org/b/id/8230011-L.jpg"))
-                }
-            }
+            db.bookDao().insert(Book(ownerUuid = user1Uuid, isbn = "978-0618640157", title = "The Lord of the Rings", authors = "J.R.R. Tolkien", coverUrl = "https://covers.openlibrary.org/b/isbn/9780618640157-L.jpg"))
+            db.bookDao().insert(Book(ownerUuid = user1Uuid, isbn = "978-0345339683", title = "The Hobbit", authors = "J.R.R. Tolkien", coverUrl = "https://covers.openlibrary.org/b/isbn/9780345339683-L.jpg"))
+            db.bookDao().insert(Book(ownerUuid = user2Uuid, isbn = "978-0132350884", title = "Clean Code", authors = "Robert C. Martin", coverUrl = "https://covers.openlibrary.org/b/id/8230011-L.jpg"))
         }
     }
 }

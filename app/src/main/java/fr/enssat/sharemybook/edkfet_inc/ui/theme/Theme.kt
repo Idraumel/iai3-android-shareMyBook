@@ -12,32 +12,72 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+    primary = BookBlueDark,
+    onPrimary = androidx.compose.ui.graphics.Color(0xFF003258),
+    primaryContainer = androidx.compose.ui.graphics.Color(0xFF004A77),
+    onPrimaryContainer = androidx.compose.ui.graphics.Color(0xFFD1E4FF),
+
+    secondary = BookBlueVariantDark,
+    onSecondary = androidx.compose.ui.graphics.Color(0xFF003258),
+    secondaryContainer = androidx.compose.ui.graphics.Color(0xFF004A77),
+    onSecondaryContainer = androidx.compose.ui.graphics.Color(0xFFD1E4FF),
+
+    tertiary = BookOrangeDark,
+    onTertiary = androidx.compose.ui.graphics.Color(0xFF452B00),
+    tertiaryContainer = androidx.compose.ui.graphics.Color(0xFF633F00),
+    onTertiaryContainer = androidx.compose.ui.graphics.Color(0xFFFFDDB3),
+
+    error = androidx.compose.ui.graphics.Color(0xFFFFB4AB),
+    errorContainer = androidx.compose.ui.graphics.Color(0xFF93000A),
+    onError = androidx.compose.ui.graphics.Color(0xFF690005),
+    onErrorContainer = androidx.compose.ui.graphics.Color(0xFFFFDAD6),
+
+    background = androidx.compose.ui.graphics.Color(0xFF1A1C1E),
+    onBackground = androidx.compose.ui.graphics.Color(0xFFE2E2E6),
+    surface = androidx.compose.ui.graphics.Color(0xFF1A1C1E),
+    onSurface = androidx.compose.ui.graphics.Color(0xFFE2E2E6),
+
+    surfaceVariant = androidx.compose.ui.graphics.Color(0xFF42474E),
+    onSurfaceVariant = androidx.compose.ui.graphics.Color(0xFFC2C7CF),
+    outline = androidx.compose.ui.graphics.Color(0xFF8C9199)
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
+    primary = BookBlue,
+    onPrimary = androidx.compose.ui.graphics.Color.White,
+    primaryContainer = androidx.compose.ui.graphics.Color(0xFFD1E4FF),
+    onPrimaryContainer = androidx.compose.ui.graphics.Color(0xFF001D36),
 
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+    secondary = BookBlueVariant,
+    onSecondary = androidx.compose.ui.graphics.Color.White,
+    secondaryContainer = androidx.compose.ui.graphics.Color(0xFFD1E4FF),
+    onSecondaryContainer = androidx.compose.ui.graphics.Color(0xFF001D36),
+
+    tertiary = BookOrange,
+    onTertiary = androidx.compose.ui.graphics.Color.White,
+    tertiaryContainer = androidx.compose.ui.graphics.Color(0xFFFFDDB3),
+    onTertiaryContainer = androidx.compose.ui.graphics.Color(0xFF2A1800),
+
+    error = androidx.compose.ui.graphics.Color(0xFFBA1A1A),
+    errorContainer = androidx.compose.ui.graphics.Color(0xFFFFDAD6),
+    onError = androidx.compose.ui.graphics.Color.White,
+    onErrorContainer = androidx.compose.ui.graphics.Color(0xFF410002),
+
+    background = androidx.compose.ui.graphics.Color(0xFFFDFCFF),
+    onBackground = androidx.compose.ui.graphics.Color(0xFF1A1C1E),
+    surface = androidx.compose.ui.graphics.Color(0xFFFDFCFF),
+    onSurface = androidx.compose.ui.graphics.Color(0xFF1A1C1E),
+
+    surfaceVariant = androidx.compose.ui.graphics.Color(0xFFDFE2EB),
+    onSurfaceVariant = androidx.compose.ui.graphics.Color(0xFF42474E),
+    outline = androidx.compose.ui.graphics.Color(0xFF73777F)
 )
 
 @Composable
 fun Iai3androidshareMyBookTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false, // Disabled to use our custom colors
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {

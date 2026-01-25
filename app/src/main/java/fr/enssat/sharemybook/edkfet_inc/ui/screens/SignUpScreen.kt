@@ -20,6 +20,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -44,6 +45,15 @@ fun SignUpScreen(
     var password by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
     val authResult by authViewModel.authResult.collectAsState()
+
+    // Navigate to bookList on successful signup
+    LaunchedEffect(authResult) {
+        if (authResult is AuthResult.Success) {
+            navController.navigate("bookList") {
+                popUpTo("signup") { inclusive = true }
+            }
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -90,7 +100,8 @@ fun SignUpScreen(
             OutlinedTextField(
                 value = phone,
                 onValueChange = { phone = it },
-                label = { Text("Phone (Optional)") },
+                label = { Text("Téléphone (ex: +33612345678)") },
+                placeholder = { Text("+33612345678") },
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(16.dp))
@@ -106,7 +117,7 @@ fun SignUpScreen(
                     Button(
                         onClick = { authViewModel.signUp(fullName, email, password, phone.takeIf { it.isNotBlank() }) }, // MainActivity will handle navigation
                         modifier = Modifier.fillMaxWidth(),
-                        enabled = fullName.isNotBlank() && email.isNotBlank() && password.isNotBlank()
+                        enabled = fullName.isNotBlank() && email.isNotBlank() && password.isNotBlank() && phone.isNotBlank()
                     ) {
                         Text("Sign Up & Login")
                     }

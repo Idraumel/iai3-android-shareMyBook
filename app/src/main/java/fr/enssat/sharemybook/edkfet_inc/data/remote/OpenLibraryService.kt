@@ -22,22 +22,27 @@ class OpenLibraryService {
 
     suspend fun getBookByIsbn(isbn: String, ownerUuid: String): Book? {
         return try {
+            Log.d("OpenLibraryService", "Fetching book data for ISBN: $isbn")
             val response: OpenLibraryResponse = client.get("https://openlibrary.org/api/volumes/brief/isbn/$isbn.json").body()
             val record = response.records.values.firstOrNull()
             if (record != null) {
                 val details = record.details
+                // Convert HTTP cover URLs to HTTPS for better compatibility
+                val coverUrl = record.thumbnailUrl?.replace("http://", "https://") ?: ""
+                Log.d("OpenLibraryService", "Book found: ${details.title}, Cover URL: $coverUrl")
                 Book(
                     ownerUuid = ownerUuid,
                     isbn = isbn,
-                    title = details.title,
-                    authors = details.authors.joinToString(", ") { it.name },
-                    coverUrl = record.thumbnailUrl
+                    title = details.title ?: "Titre inconnu", // Ensure title is never null
+                    authors = details.authors.joinToString(", ") { it.name }.ifEmpty { "Auteur inconnu" }, // Ensure authors is never empty
+                    coverUrl = coverUrl
                 )
             } else {
+                Log.w("OpenLibraryService", "No records found for ISBN: $isbn")
                 null
             }
         } catch (e: Exception) {
-            Log.e("OpenLibraryService", "Failed to fetch book data", e)
+            Log.e("OpenLibraryService", "Failed to fetch book data for ISBN: $isbn", e)
             null
         }
     }
